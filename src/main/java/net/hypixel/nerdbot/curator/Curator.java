@@ -76,11 +76,21 @@ public class Curator {
                     continue;
 
                 // We remove 1 from each agree and disagree because of the bots reaction
-                if (reaction.getReactionEmote().getId().equals(Reactions.AGREE.getId()))
+                // And also remove one from the person who suggested it
+                // Maybe could even remove the actual reaction from the person as a visual indication
+                if (reaction.getReactionEmote().getId().equals(Reactions.AGREE.getId())) {
                     positive = reaction.getCount() - 1;
+                    if (reaction.retrieveUsers().stream().map(ISnowflake::getId).anyMatch(s -> s.equals(message.getAuthor().getId()))) {
+                        positive--;
+                    }
+                }
 
-                if (reaction.getReactionEmote().getId().equals(Reactions.DISAGREE.getId()))
+                if (reaction.getReactionEmote().getId().equals(Reactions.DISAGREE.getId())) {
                     negative = reaction.getCount() - 1;
+                    if (reaction.retrieveUsers().stream().map(ISnowflake::getId).anyMatch(s -> s.equals(message.getAuthor().getId()))) {
+                        negative--;
+                    }
+                }
 
                 // Track reactions for each user and save them into the database
                 reaction.retrieveUsers().forEach(user -> {
